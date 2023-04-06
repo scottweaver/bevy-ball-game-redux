@@ -21,13 +21,13 @@ pub fn play_random_sound_effect(
 
 
 pub fn component_spawner<B: Bounds2D, R: RandomSpawn + Component>(
-    star_count: usize,
+    count: usize,
     asset_path: String,
     mut commands: Commands,
     bounds: &B,
     asset_server: Res<AssetServer>
 ) {
-    for _ in 0..star_count {
+    for _ in 0..count {
         let (x, y, thing) = R::spawn_location(bounds);
 
         let bundle = SpriteBundle {
