@@ -1,11 +1,13 @@
 # Bevy Ball Game Redux
 
-This is an extended and slightly refactored version of @frederickjjoubert wonderful [bevy-ball-game](https://github.com/frederickjjoubert/bevy-ball-game)
+This is an extended and slightly refactored version of @frederickjjoubert wonderful [bevy-ball-game](https://github.com/frederickjjoubert/bevy-ball-game) which has an associated [multi-part tutorial series](https://youtube.com/playlist?list=PLVnntJRoP85JHGX7rGDu6LaF3fmDDbqyd) that is well worth your time to watch.
+
 
 ## Extended Features
 
 - Respawn player with the 'R' key.
 - Usage of the `impactSoft_heavy_*.ogg` for a more pleasing ball bounce sound.
+- 
 
 ## Internal Code Refactorings
 
