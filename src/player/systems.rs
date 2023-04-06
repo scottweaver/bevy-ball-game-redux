@@ -1,13 +1,13 @@
-use super::*;
 use super::components::Player;
-use bevy::window::PrimaryWindow;
-use crate::enemy::ENEMY_SIZE;
+use super::*;
 use crate::enemy::components::Enemy;
-use crate::score::resources::Score;
+use crate::enemy::ENEMY_SIZE;
+use crate::score::resources::*;
 use crate::shared::traits::*;
-use crate::star::STAR_SIZE;
 use crate::star::components::Star;
-
+use crate::star::STAR_SIZE;
+use crate::GameOver;
+use bevy::window::PrimaryWindow;
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -24,6 +24,22 @@ pub fn spawn_player(
 
     commands.spawn((ball, player));
 }
+
+// fn spawn_player_direct(
+//     mut commands: &Commands,
+//     window_query: &Query<&Window, With<PrimaryWindow>>,
+//     asset_server: &Res<AssetServer>,
+// ) {
+//     let window = window_query.get_single().unwrap();
+//     let ball = SpriteBundle {
+//         transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.),
+//         texture: asset_server.load("sprites/ball_blue_large.png"),
+//         ..Default::default()
+//     };
+//     let player = Player {};
+
+//     commands.spawn((ball, player));
+// }
 
 pub fn player_movement(
     keyboard_input: Res<Input<KeyCode>>,
@@ -66,10 +82,12 @@ pub fn constrain_player_movement(
 
 pub fn enemy_player_collision(
     mut commands: Commands,
+    mut game_over_event_writer: EventWriter<GameOver>,
     mut player_query: Query<(Entity, &Transform), With<Player>>,
-    enemy_query: Query<&Transform, With<Enemy>>,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
+    enemy_query: Query<&Transform, With<Enemy>>,
+    score: Res<Score>,
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
         for enemy_transform in enemy_query.iter() {
@@ -83,7 +101,30 @@ pub fn enemy_player_collision(
                 let sound_effect = asset_server.load("audio/explosionCrunch_000.ogg");
                 audio.play(sound_effect);
                 commands.entity(player_entity).despawn();
+                game_over_event_writer.send(GameOver { score: score.value });
             }
+        }
+    }
+}
+
+pub fn handle_player_respawn(
+    mut commands: Commands,
+    mut respawn_player_event_reader: EventReader<RespawnPlayer>,
+    asset_server: Res<AssetServer>,
+    player_query: Query<&Player, With<Player>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+) {
+    for _ in respawn_player_event_reader.iter() {
+        let window = window_query.get_single().unwrap();
+        let ball = SpriteBundle {
+            transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.),
+            texture: asset_server.load("sprites/ball_blue_large.png"),
+            ..Default::default()
+        };
+        let player = Player {};
+
+        if player_query.iter().len() < 1 {
+            commands.spawn((ball, player));
         }
     }
 }
@@ -110,5 +151,14 @@ pub fn player_star_collecting(
                 score.value += 1;
             }
         }
+    }
+}
+
+pub fn trigger_player_respawn(
+    mut respawn_plater_event_writer: EventWriter<RespawnPlayer>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
+    if keyboard_input.pressed(KeyCode::R) {
+        respawn_plater_event_writer.send(RespawnPlayer {});
     }
 }
