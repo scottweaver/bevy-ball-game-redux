@@ -6,6 +6,19 @@ use super::components::Star;
 use super::resources::StarSpawnTimer;
 
 
+
+// pub fn despawn_star(mut commands: Commands, entity_query: Query<Entity, With<Star>>) {
+//     for entity in entity_query.iter() {
+//         commands.entity(entity).despawn();
+//     }
+// }
+
+pub fn despawn_star(mut commands: Commands, star_query: Query<Entity, With<Star>>) {
+     for entity in star_query.iter() {
+     commands.entity(entity).despawn();
+  }
+}
+
 pub fn spawn_stars(
     commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
